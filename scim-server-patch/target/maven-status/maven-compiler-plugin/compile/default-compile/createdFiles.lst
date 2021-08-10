@@ -1,0 +1,8 @@
+org/apache/directory/scim/server/patch/PatchOperations.class
+org/apache/directory/scim/server/patch/utility/PatchUtil.class
+org/apache/directory/scim/server/patch/utility/FilterMatchUtil.class
+org/apache/directory/scim/server/patch/PatchOperations$1.class
+org/apache/directory/scim/server/patch/utility/PatchUtil$1.class
+org/apache/directory/scim/server/patch/utility/FilterMatchUtil$1.class
+org/apache/directory/scim/server/patch/utility/PathAttributePair.class
+org/apache/directory/scim/server/patch/PatchOperations$2.class
