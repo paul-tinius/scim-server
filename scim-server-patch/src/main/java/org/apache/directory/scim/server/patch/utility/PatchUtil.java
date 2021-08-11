@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.time.LocalDateTime;
 import javax.ws.rs.core.Response;
@@ -53,6 +56,24 @@ public class PatchUtil {
     errorResponse.setScimType(messageType);
 
     return new ScimException(errorResponse, status);
+  }
+
+  /**
+   * @param attribute the {@link Attribute}
+   * @return Returns {@link Class} representing the generic
+   * @throws ClassNotFoundException if the class isn't found
+   */
+  public static Class<?> genericClass(final Attribute attribute) throws ClassNotFoundException {
+    try {
+      Field field = attribute.getField();
+      ParameterizedType listType = (ParameterizedType) field.getGenericType();
+      Type actualTypeArgument = listType.getActualTypeArguments()[0];
+      return Class.forName(actualTypeArgument.getTypeName());
+    } catch (ClassNotFoundException e) {
+      log.error("Class '{}' wasn't found", e.getMessage());
+      log.debug("STACKTRACE::", e);
+      throw e;
+    }
   }
 
   /**

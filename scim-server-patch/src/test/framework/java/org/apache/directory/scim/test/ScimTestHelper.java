@@ -64,6 +64,7 @@ import org.apache.directory.scim.test.builder.EmailBuilder;
 import org.apache.directory.scim.test.builder.ListPatchOperationBuilder;
 import org.apache.directory.scim.test.builder.MetaBuilder;
 import org.apache.directory.scim.test.builder.NameBuilder;
+import org.apache.directory.scim.test.builder.ScimGroupBuilder;
 import org.apache.directory.scim.test.builder.ScimUserBuilder;
 import org.apache.directory.scim.test.extensions.ExampleObjectExtension;
 
@@ -103,17 +104,15 @@ public class ScimTestHelper {
   }
 
   public static ScimGroup generateScimGroup(final String id) {
-    ScimGroup group = new ScimGroup();
-    group.setId(id);
-
-    group.setMeta(MetaBuilder.builder()
-      .created(LocalDateTime.now())
-      .lastModified(LocalDateTime.now())
-      .resourceType("Group")
-      .location("http://example.com/Groups/" + group.getId())
-      .build());
-
-    return group;
+    return ScimGroupBuilder.builder()
+      .id(id)
+      .meta(MetaBuilder.builder()
+        .created(LocalDateTime.now())
+        .lastModified(LocalDateTime.now())
+        .resourceType("Group")
+        .location("http://example.com/Groups/" + id)
+        .build())
+      .build();
   }
 
   public static ScimGroup generateScimGroup() {

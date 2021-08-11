@@ -9,6 +9,7 @@ import static org.apache.directory.scim.server.patch.utility.PatchUtil.checkSupp
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.checkTarget;
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.checkValue;
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.checkValueEquals;
+import static org.apache.directory.scim.server.patch.utility.PatchUtil.genericClass;
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.multiValuedPrimaryUniqueness;
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.subAttributeLoggable;
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.throwScimException;
@@ -47,7 +48,6 @@ import org.apache.directory.scim.spec.protocol.filter.AttributeComparisonExpress
 import org.apache.directory.scim.spec.protocol.filter.FilterExpression;
 import org.apache.directory.scim.spec.protocol.filter.FilterParseException;
 import org.apache.directory.scim.spec.protocol.filter.ValuePathExpression;
-import org.apache.directory.scim.spec.resources.ScimExtension;
 import org.apache.directory.scim.spec.resources.ScimResource;
 import org.apache.directory.scim.spec.schema.Schema;
 
@@ -351,11 +351,23 @@ public class PatchOperations {
        */
       Map<String, Object> map;
       if(value instanceof List) {
-        List<Map<String, Object>> valueList = (List<Map<String, Object>>) value;
-        if(valueList.size()!=1) {
-          throw throwScimException(Response.Status.BAD_REQUEST, ErrorMessageType.UNIQUENESS);
+        try {
+          Class<?> clazz = genericClass(attribute);
+          if(clazz.isAssignableFrom(Map.class)) {
+            List<Map<String, Object>> valueList = (List<Map<String, Object>>) value;
+            if(valueList.size()!=1) {
+              throw throwScimException(Response.Status.BAD_REQUEST, ErrorMessageType.UNIQUENESS);
+            }
+            map = valueList.get(0);
+          } else {
+            map = objectMapper.convertValue(((List<?>) value).get(0), MAP_TYPE);
+          }
+        } catch (ClassNotFoundException e) {
+          log.error("Failed to determine the generic class list of elements, {}.", e.getMessage());
+          log.debug("STACKTRACE::", e);
+
+          throw throwScimException(Response.Status.BAD_REQUEST, ErrorMessageType.INVALID_VALUE);
         }
-        map = valueList.get(0);
       } else {
         map = (Map<String, Object>) value;
       }
@@ -450,15 +462,6 @@ public class PatchOperations {
   }
 
   /**
-   * @param scimRExtensionAsMap the {@link Map} representing the SCIM extension
-   * @param clazz               the {@link ScimResource} class
-   * @return Returns a {@link ScimExtension} representing the {@code scimRExtensionAsMap}
-   */
-  private <E extends ScimExtension> E mapAsScimExtension(final Map<String, Object> scimRExtensionAsMap, final Class<E> clazz) {
-    return objectMapper.convertValue(scimRExtensionAsMap, clazz);
-  }
-
-  /**
    * @param object the {@link Object} to represent as a {@link Map}
    * @return Returns the {@link Map<>} representing {@code object}
    */
@@ -472,14 +475,6 @@ public class PatchOperations {
    */
   private <T extends ScimResource> Map<String, Object> scimResourceAsMap(final T scimResource) {
     return objectAsMap(scimResource);
-  }
-
-  /**
-   * @param scimExtension the {@link ScimExtension} representing the SCIM extension
-   * @return Returns a {@link Map} representing the {@link ScimResource}
-   */
-  private <T extends ScimExtension> Map<String, Object> scimExtensionAsMap(final T scimExtension) {
-    return objectAsMap(scimExtension);
   }
 
   /**
@@ -783,18 +778,5 @@ public class PatchOperations {
         singularAttributeSource.remove(attribute.getName());
         break;
     }
-  }
-
-  static void logAttributeReference(final PatchOperation operation) {
-    final AttributeReference reference = operation.getPath().getValuePathExpression().getAttributePath();
-    logAttributeReference(reference);
-  }
-
-  static void logAttributeReference(final AttributeReference reference) {
-    log.info("ATTRIBUTE REFERENCE URN             : {}", reference.getUrn());
-    log.info("ATTRIBUTE REFERENCE NAME            : {}", reference.getAttributeName());
-    log.info("ATTRIBUTE REFERENCE SUB-NAME        : {}", reference.getSubAttributeName());
-    log.info("ATTRIBUTE REFERENCE FULL NAME       : {}", reference.getFullAttributeName());
-    log.info("ATTRIBUTE REFERENCE FULLY QUALIFIED : {}", reference.getFullyQualifiedAttributeName());
   }
 }

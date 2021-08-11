@@ -171,7 +171,7 @@ public class TargetLocationSpecifiedSingularValuedAttribute implements Arguments
       .build()));
 
     /*
-     * Can not remove ScimUser userName attribute, its a read-only as far as patch remove operations are concerned.
+     * Can not remove the ScimUser userName attribute; it's read-only, as far as patch remove operations are concerned.
      */
 
     values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()

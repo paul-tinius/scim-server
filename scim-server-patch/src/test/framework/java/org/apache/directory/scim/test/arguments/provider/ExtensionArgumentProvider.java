@@ -2,6 +2,7 @@ package org.apache.directory.scim.test.arguments.provider;
 
 import static org.apache.directory.scim.spec.protocol.data.PatchOperation.Type.ADD;
 import static org.apache.directory.scim.spec.protocol.data.PatchOperation.Type.REMOVE;
+import static org.apache.directory.scim.spec.protocol.data.PatchOperation.Type.REPLACE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,7 +167,7 @@ public class ExtensionArgumentProvider implements ArgumentsProvider {
       .build()));
 
     /*
-     * Can not remove Enterprise Extension Manager (displayName) attribute, its a read-only as far as patch remove operations are concerned.
+     * Can not remove the ScimUser enterprise manager userName attribute; it's read-only, as far as patch remove operations are concerned.
      */
 
     values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
@@ -183,6 +184,79 @@ public class ExtensionArgumentProvider implements ArgumentsProvider {
       .build()));
 
     // REPLACE Target Location already exists
+    newValue = ScimTestHelper.faker().letterify("?? Cost Center ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:costCenter")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getCostCenter(), newValue)
+      .validate(user -> user.getSchemas().contains(EnterpriseExtension.URN), true)
+      .build()));
+
+    newValue = ScimTestHelper.faker().letterify("?? Department ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getDepartment(), newValue)
+      .build()));
+
+    newValue = ScimTestHelper.faker().letterify("?? Division ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:division")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getDivision(), newValue)
+      .build()));
+
+    newValue = ScimTestHelper.faker().letterify("?? Employee Number ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:employeeNumber")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getEmployeeNumber(), newValue)
+      .build()));
+
+    newValue = ScimTestHelper.faker().letterify("?? Organization ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:organization")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getOrganization(), newValue)
+      .build()));
+
+    newValue = ScimTestHelper.faker().letterify("?? Display Name ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:manager.displayName")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getManager() != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getManager().getDisplayName() != null, true)
+      .build()));
+
+    newValue = ScimTestHelper.faker().letterify("?? Value ??");
+    values.add(Arguments.of(new PatchArgs.Builder<ScimUser>()
+      .type(REPLACE)
+      .path("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:manager.value")
+      .value(newValue)
+      .validate(user -> user.getExtensions() != null, true)
+      .validate(user -> user.getExtension(EnterpriseExtension.URN) != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getManager() != null, true)
+      .validate(user -> ((EnterpriseExtension) user.getExtension(EnterpriseExtension.URN)).getManager().getValue() != null, true)
+      .build()));
 
     return values.stream();
   }

@@ -55,6 +55,7 @@ public class GroupMembershipArgumentsProvider implements ArgumentsProvider {
       .build()));
 
     // REMOVE
+    /* remove all */
     values.add(Arguments.of(new PatchArgs.Builder<ScimGroup>()
       .type(REMOVE)
       .path("members")
@@ -65,6 +66,7 @@ public class GroupMembershipArgumentsProvider implements ArgumentsProvider {
       .validate(group -> group.getMembers() == null, true)
       .build()));
 
+    /* remove a given user id */
     values.add(Arguments.of(new PatchArgs.Builder<ScimGroup>()
       .type(REMOVE)
       .path(String.format("members[value EQ \"%s\"]", expectedResourceReference.getValue()))
@@ -81,6 +83,7 @@ public class GroupMembershipArgumentsProvider implements ArgumentsProvider {
       .build()));
 
     // REPLACE
+    /* replace all */
     values.add(Arguments.of(new PatchArgs.Builder<ScimGroup>()
       .type(REPLACE)
       .path("members")
@@ -95,6 +98,7 @@ public class GroupMembershipArgumentsProvider implements ArgumentsProvider {
       .validate(group -> group.getMembers().get(0), expectedResourceReference)
       .build()));
 
+    /* replace members */
     values.add(Arguments.of(new PatchArgs.Builder<ScimGroup>()
       .type(REPLACE)
       .path("members")
@@ -106,6 +110,22 @@ public class GroupMembershipArgumentsProvider implements ArgumentsProvider {
       .validate(group -> group.getMembers() != null, true)
       .validate(group -> group.getMembers().size(), replaceMembers.size())
       .validate(group -> group.getMembers().equals(replaceMembers), true)
+      .build()));
+
+    /* replace a single member */
+    final ResourceReference randomMember = members.get(ScimTestHelper.faker().random().nextInt(0,members.size() - 1));
+    final ResourceReference randomReference = replaceMembers.get(ScimTestHelper.faker().random().nextInt(0,replaceMembers.size() - 1));
+    values.add(Arguments.of(new PatchArgs.Builder<ScimGroup>()
+      .type(REPLACE)
+      .path(String.format("members[value EQ \"%s\"]", randomMember.getValue()))
+      .value(ImmutableList.of(randomReference))
+      .setter( group -> {
+        group.setMembers(members);
+        return null;
+      })
+      .validate(group -> group.getMembers() != null, true)
+      .validate(group -> group.getMembers().size(), members.size())
+      .validate(group -> group.getMembers().contains(randomReference), true)
       .build()));
 
     return values.stream();
