@@ -2,6 +2,7 @@ package org.apache.directory.scim.test;
 
 import static java.util.stream.Collectors.toSet;
 import static org.apache.directory.scim.server.patch.utility.PatchUtil.attributeLoggable;
+import static org.apache.directory.scim.server.patch.utility.PatchUtil.genericClass;
 import static org.apache.directory.scim.spec.protocol.data.PatchOperation.Type.ADD;
 import static org.apache.directory.scim.spec.schema.Schema.Attribute;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -838,9 +839,7 @@ public class ScimTestHelper {
           Field field = attribute.getField();
           Object instance;
           if(field.getType().equals(List.class)) {
-            ParameterizedType listType = (ParameterizedType) field.getGenericType();
-            Type actualTypeArgument = listType.getActualTypeArguments()[0];
-            Class<?> clazz = Class.forName(actualTypeArgument.getTypeName());
+            Class<?> clazz = genericClass(attribute);
             instance = new ArrayList<>();
             Object genericInstance;
             if(clazz.equals(ResourceReference.class)) {
